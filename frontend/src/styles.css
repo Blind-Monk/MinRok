@@ -1,0 +1,23 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.sidebar {
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+.sidebar a {
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 10px 15px;
+  display: block;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+.sidebar a.active, .sidebar a:hover {
+  background-color: #1e293b;
+  color: #38bdf8;
+}
+.card-metric {
+  border-left: 4px solid #3b82f6;
+}

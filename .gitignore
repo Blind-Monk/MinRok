@@ -1,0 +1,9 @@
+.angular
+node_modules
+**/node_modules
+**/dist
+.env
+*.log
+coverage
+.playwright-tests
+.vite
