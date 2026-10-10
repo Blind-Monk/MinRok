@@ -1,6 +1,6 @@
 # Sequential Development Launch & Service Guide (Bun & Node.js)
 
-This guide provides step-by-step instructions for starting the Payment Proxy Platform services **one by one** in local development mode.
+This guide provides step-by-step instructions for installing dependencies and starting the Payment Proxy Platform services **one by one** in local development mode.
 
 ---
 
@@ -19,18 +19,20 @@ This guide provides step-by-step instructions for starting the Payment Proxy Pla
 
 ## Step-by-Step Sequential Service Launch
 
-Follow these steps in numerical order to bring up the platform service by service:
+Follow these steps in numerical order to install dependencies and bring up the platform service by service:
 
 ### Step 1: Initialize Database & Run Setup Tool
 
 Before starting any microservice, ensure PostgreSQL (with `pgvector` extension) and Redis are running.
 
-**Commands**:
+**Install Dependencies & Run**:
 ```bash
 # Using Bun ⚡
+bun i --cwd tools/db-setup
 bun run tools/db-setup/index.js
 
 # Using Node.js & npm 💚
+npm --prefix tools/db-setup install
 npm run db:setup
 ```
 
@@ -44,14 +46,16 @@ Expect tables: `merchants`, `allowed_system_users`, `merchant_gateways`, `paymen
 
 ### Step 2: Start API Gateway Microservice (`backend/api`)
 
-Open **Terminal 1** and start the core Fastify API Gateway.
+Open **Terminal 1**, install service dependencies with `bun i`, and start the core Fastify API Gateway.
 
-**Commands**:
+**Install Dependencies & Start**:
 ```bash
 # Using Bun ⚡
+bun i --cwd backend/api
 bun run --cwd backend/api start
 
 # Using Node.js & npm 💚
+npm --prefix backend/api install
 npm --prefix backend/api run build
 npm --prefix backend/api start
 ```
@@ -67,14 +71,16 @@ Access interactive Fastify Swagger API documentation at: `http://localhost:8080/
 
 ### Step 3: Start Webhook Receiver Microservice (`backend/webhook`)
 
-Open **Terminal 2** and start the Webhook Receiver and HMAC forwarder service.
+Open **Terminal 2**, install service dependencies with `bun i`, and start the Webhook Receiver and HMAC forwarder service.
 
-**Commands**:
+**Install Dependencies & Start**:
 ```bash
 # Using Bun ⚡
+bun i --cwd backend/webhook
 bun run --cwd backend/webhook start
 
 # Using Node.js & npm 💚
+npm --prefix backend/webhook install
 npm --prefix backend/webhook run build
 npm --prefix backend/webhook start
 ```
@@ -89,20 +95,21 @@ curl http://localhost:8081/health
 
 ### Step 4: Start Status Polling & RAG Ingestion Worker (`backend/worker`)
 
-Open **Terminal 3** and start the background cron worker.
+Open **Terminal 3**, install service dependencies with `bun i`, and start the background cron worker.
 
-**Commands**:
+**Install Dependencies & Start**:
 ```bash
 # Using Bun ⚡
+bun i --cwd backend/worker
 bun run --cwd backend/worker start
 
 # Using Node.js & npm 💚
+npm --prefix backend/worker install
 npm --prefix backend/worker run build
 npm --prefix backend/worker start
 ```
 
-**Verification Check**:
-Observe terminal logs confirming doc ingestion:
+**Verification Check**: Observe terminal logs confirming doc ingestion:
 ```
 [worker] Payment Proxy Worker started.
 [worker] Starting RAG documentation ingestion...
@@ -113,14 +120,16 @@ Observe terminal logs confirming doc ingestion:
 
 ### Step 5: Start Model Context Protocol (MCP) Server (`backend/mcp`)
 
-Open **Terminal 4** and start the MCP AI Server.
+Open **Terminal 4**, install service dependencies with `bun i`, and start the MCP AI Server.
 
-**Commands**:
+**Install Dependencies & Start**:
 ```bash
 # Using Bun ⚡
+bun i --cwd backend/mcp
 bun run --cwd backend/mcp start
 
 # Using Node.js & npm 💚
+npm --prefix backend/mcp install
 npm --prefix backend/mcp run build
 npm --prefix backend/mcp start
 ```
@@ -129,29 +138,30 @@ npm --prefix backend/mcp start
 
 ### Step 6: Start Angular Frontend Dashboard (`frontend`)
 
-Open **Terminal 5** and start the Angular UI application.
+Open **Terminal 5**, install service dependencies with `bun i`, and start the Angular UI application.
 
-**Commands**:
+**Install Dependencies & Start**:
 ```bash
 # Using Bun ⚡
+bun i --cwd frontend
 bun run --cwd frontend start
 
 # Using Angular CLI / npm 💚
+npm --prefix frontend install
 npm --prefix frontend start
 ```
 
-**Verification**:
-Open your browser and navigate to `http://localhost:4200`. Sign up a new merchant to test the end-to-end payment creation flow.
+**Verification**: Open your browser and navigate to `http://localhost:4200`. Sign up a new merchant to test the end-to-end payment creation flow.
 
 ---
 
 ## Summary Table of Services
 
-| Step | Service Name | Directory Path | Port | Health / Verification Endpoint |
-| :--- | :--- | :--- | :--- | :--- |
-| **1** | Database Setup Tool | `tools/db-setup` | 5432 (Postgres) | `npm run db:setup` |
-| **2** | API Gateway | `backend/api` | 8080 | `GET http://localhost:8080/health` |
-| **3** | Webhook Receiver | `backend/webhook` | 8081 | `GET http://localhost:8081/health` |
-| **4** | Status & RAG Worker | `backend/worker` | N/A | Terminal Log Verification |
-| **5** | MCP AI Tool Server | `backend/mcp` | 8082 | Stdio / HTTP Connection |
-| **6** | Angular Dashboard | `frontend` | 4200 | `http://localhost:4200` |
+| Step | Service Name | Directory Path | Install Command (Bun) | Port | Health / Verification Endpoint |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | Database Setup Tool | `tools/db-setup` | `bun i --cwd tools/db-setup` | 5432 (Postgres) | `npm run db:setup` |
+| **2** | API Gateway | `backend/api` | `bun i --cwd backend/api` | 8080 | `GET http://localhost:8080/health` |
+| **3** | Webhook Receiver | `backend/webhook` | `bun i --cwd backend/webhook` | 8081 | `GET http://localhost:8081/health` |
+| **4** | Status & RAG Worker | `backend/worker` | `bun i --cwd backend/worker` | N/A | Terminal Log Verification |
+| **5** | MCP AI Tool Server | `backend/mcp` | `bun i --cwd backend/mcp` | 8082 | Stdio / HTTP Connection |
+| **6** | Angular Dashboard | `frontend` | `bun i --cwd frontend` | 4200 | `http://localhost:4200` |
