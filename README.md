@@ -38,6 +38,25 @@ An open-source, non-custodial payment orchestration proxy platform built with No
 
 ---
 
+## Initial Configuration Commands
+
+Execute these commands from the **Repository Root Directory** (`/app`):
+
+```bash
+# 1. Navigate to repository root
+cd /app
+
+# 2. Copy config.example.json to config.json
+cp config.example.json config.json
+
+# 3. Export environment variables
+export WISE_WORDS_CONFIG="$(pwd)/config.json"
+export GROQ_API_KEY="your-groq-key"
+export GOOGLE_AI_STUDIO_API_KEY="your-google-key"
+```
+
+---
+
 ## Service Guides & Documentation Links
 
 - 🚀 [API Gateway Microservice (`backend/api`)](docs/services/api-gateway.md)
@@ -52,7 +71,7 @@ An open-source, non-custodial payment orchestration proxy platform built with No
 
 ## Step-by-Step Sequential Launch (`bun i` / Bun & Node.js)
 
-Start the microservices one by one in separate terminal windows:
+All launch commands below should be run from the **Repository Root Directory** (`/app`):
 
 ### 1. Database Setup Tool
 ```bash
@@ -109,6 +128,7 @@ Open browser at `http://localhost:4200`.
 
 ## Docker & Azure Deployment
 
+Run commands from repository root (`/app`):
 - **Development Docker Compose**: `docker compose -f infra/docker-compose.yml up --build`
 - **Production Docker Compose**: `docker compose -f infra/docker-compose.prod.yml up -d --build`
 - **Azure Production Deployment**: `bash infra/azure/deploy.sh rg-payment-proxy centralindia`
@@ -118,6 +138,7 @@ Open browser at `http://localhost:4200`.
 
 ## Testing
 
+Run commands from repository root (`/app`):
 ```bash
 # Unit & Integration Tests
 bun test

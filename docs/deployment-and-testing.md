@@ -1,12 +1,15 @@
 # Sequential Development Launch & Service Guide (Bun & Node.js)
 
-This guide provides step-by-step instructions for installing dependencies and starting the Payment Proxy Platform services **one by one** in local development mode.
+This guide provides step-by-step instructions for initializing configuration files, setting environment variables, installing dependencies, and starting the Payment Proxy Platform microservices **one by one** in local development mode.
 
 ---
 
-## Workspace Directory & File Paths Summary
+## Workspace Directory & Execution Paths Summary
 
-- **Centralized Config File**: `/app/config.json` (Template: `/app/config.example.json`)
+All initialization and environment export commands must be executed from the **Repository Root Directory** (`/app` or root of the cloned repo):
+
+- **Repository Root Path**: `/app` (or your local `payment-proxy` repository root)
+- **Centralized Config File Path**: `/app/config.json` (Template: `/app/config.example.json`)
 - **Database Migrations Script**: `/app/infra/db/migrations/001_init.sql`
 - **Database Setup Tool**: `/app/tools/db-setup/index.js`
 - **API Gateway Service**: `/app/backend/api/src/server.ts` (Port `8080`)
@@ -14,6 +17,25 @@ This guide provides step-by-step instructions for installing dependencies and st
 - **Status & RAG Worker Service**: `/app/backend/worker/src/index.ts`
 - **MCP AI Tool Server**: `/app/backend/mcp/src/server.ts` (Port `8082`)
 - **Angular Frontend Dashboard**: `/app/frontend/` (Port `4200`)
+
+---
+
+## Initial Setup & Environment Configuration Commands
+
+**Execution Path**: Execute these commands from the **Repository Root Directory** (`/app` or `./`):
+
+```bash
+# 1. Navigate to the repository root directory
+cd /app
+
+# 2. Copy the example configuration to config.json
+cp config.example.json config.json
+
+# 3. Export required environment variables
+export WISE_WORDS_CONFIG="$(pwd)/config.json"
+export GROQ_API_KEY="your-groq-key"
+export GOOGLE_AI_STUDIO_API_KEY="your-google-key"
+```
 
 ---
 
@@ -25,7 +47,7 @@ Follow these steps in numerical order to install dependencies and bring up the p
 
 Before starting any microservice, ensure PostgreSQL (with `pgvector` extension) and Redis are running.
 
-**Install Dependencies & Run**:
+**Execution Path**: Repository Root (`/app`)
 ```bash
 # Using Bun ⚡
 bun i --cwd tools/db-setup
@@ -36,7 +58,7 @@ npm --prefix tools/db-setup install
 npm run db:setup
 ```
 
-**Verification**:
+**Verification Command** (Run from any path):
 ```bash
 psql "postgres://proxy:proxy@localhost:5432/proxy" -c "\dt"
 ```
@@ -46,9 +68,9 @@ Expect tables: `merchants`, `allowed_system_users`, `merchant_gateways`, `paymen
 
 ### Step 2: Start API Gateway Microservice (`backend/api`)
 
-Open **Terminal 1**, install service dependencies with `bun i`, and start the core Fastify API Gateway.
+Open **Terminal 1**, navigate to repository root (`/app`), install service dependencies with `bun i`, and start the core Fastify API Gateway.
 
-**Install Dependencies & Start**:
+**Execution Path**: Repository Root (`/app`)
 ```bash
 # Using Bun ⚡
 bun i --cwd backend/api
@@ -71,9 +93,9 @@ Access interactive Fastify Swagger API documentation at: `http://localhost:8080/
 
 ### Step 3: Start Webhook Receiver Microservice (`backend/webhook`)
 
-Open **Terminal 2**, install service dependencies with `bun i`, and start the Webhook Receiver and HMAC forwarder service.
+Open **Terminal 2**, navigate to repository root (`/app`), install service dependencies with `bun i`, and start the Webhook Receiver and HMAC forwarder service.
 
-**Install Dependencies & Start**:
+**Execution Path**: Repository Root (`/app`)
 ```bash
 # Using Bun ⚡
 bun i --cwd backend/webhook
@@ -95,9 +117,9 @@ curl http://localhost:8081/health
 
 ### Step 4: Start Status Polling & RAG Ingestion Worker (`backend/worker`)
 
-Open **Terminal 3**, install service dependencies with `bun i`, and start the background cron worker.
+Open **Terminal 3**, navigate to repository root (`/app`), install service dependencies with `bun i`, and start the background cron worker.
 
-**Install Dependencies & Start**:
+**Execution Path**: Repository Root (`/app`)
 ```bash
 # Using Bun ⚡
 bun i --cwd backend/worker
@@ -120,9 +142,9 @@ npm --prefix backend/worker start
 
 ### Step 5: Start Model Context Protocol (MCP) Server (`backend/mcp`)
 
-Open **Terminal 4**, install service dependencies with `bun i`, and start the MCP AI Server.
+Open **Terminal 4**, navigate to repository root (`/app`), install service dependencies with `bun i`, and start the MCP AI Server.
 
-**Install Dependencies & Start**:
+**Execution Path**: Repository Root (`/app`)
 ```bash
 # Using Bun ⚡
 bun i --cwd backend/mcp
@@ -138,9 +160,9 @@ npm --prefix backend/mcp start
 
 ### Step 6: Start Angular Frontend Dashboard (`frontend`)
 
-Open **Terminal 5**, install service dependencies with `bun i`, and start the Angular UI application.
+Open **Terminal 5**, navigate to repository root (`/app`), install service dependencies with `bun i`, and start the Angular UI application.
 
-**Install Dependencies & Start**:
+**Execution Path**: Repository Root (`/app`)
 ```bash
 # Using Bun ⚡
 bun i --cwd frontend
@@ -155,13 +177,14 @@ npm --prefix frontend start
 
 ---
 
-## Summary Table of Services
+## Summary Table of Services & Command Working Directories
 
-| Step | Service Name | Directory Path | Install Command (Bun) | Port | Health / Verification Endpoint |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **1** | Database Setup Tool | `tools/db-setup` | `bun i --cwd tools/db-setup` | 5432 (Postgres) | `npm run db:setup` |
-| **2** | API Gateway | `backend/api` | `bun i --cwd backend/api` | 8080 | `GET http://localhost:8080/health` |
-| **3** | Webhook Receiver | `backend/webhook` | `bun i --cwd backend/webhook` | 8081 | `GET http://localhost:8081/health` |
-| **4** | Status & RAG Worker | `backend/worker` | `bun i --cwd backend/worker` | N/A | Terminal Log Verification |
-| **5** | MCP AI Tool Server | `backend/mcp` | `bun i --cwd backend/mcp` | 8082 | Stdio / HTTP Connection |
-| **6** | Angular Dashboard | `frontend` | `bun i --cwd frontend` | 4200 | `http://localhost:4200` |
+| Step | Service Name | Directory Path | Execution Path | Install Command (Bun) | Port | Health / Verification Endpoint |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **0** | Initial Config | `/app` | Repository Root (`/app`) | `cp config.example.json config.json` | N/A | File `config.json` exists |
+| **1** | Database Setup Tool | `tools/db-setup` | Repository Root (`/app`) | `bun i --cwd tools/db-setup` | 5432 (Postgres) | `npm run db:setup` |
+| **2** | API Gateway | `backend/api` | Repository Root (`/app`) | `bun i --cwd backend/api` | 8080 | `GET http://localhost:8080/health` |
+| **3** | Webhook Receiver | `backend/webhook` | Repository Root (`/app`) | `bun i --cwd backend/webhook` | 8081 | `GET http://localhost:8081/health` |
+| **4** | Status & RAG Worker | `backend/worker` | Repository Root (`/app`) | `bun i --cwd backend/worker` | N/A | Terminal Log Verification |
+| **5** | MCP AI Tool Server | `backend/mcp` | Repository Root (`/app`) | `bun i --cwd backend/mcp` | 8082 | Stdio / HTTP Connection |
+| **6** | Angular Dashboard | `frontend` | Repository Root (`/app`) | `bun i --cwd frontend` | 4200 | `http://localhost:4200` |

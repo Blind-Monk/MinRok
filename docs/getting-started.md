@@ -1,12 +1,31 @@
 # Getting Started Guide
 
-Follow this guide to install dependencies with Bun (`bun i`) or npm and set up the Payment Proxy Platform services sequentially.
+Follow this guide to set up initial configuration files, export environment variables, install dependencies with Bun (`bun i`) or npm, and launch the Payment Proxy Platform microservices sequentially.
+
+---
+
+## Initial Configuration & Environment Setup
+
+All setup and configuration commands must be executed from the **Repository Root Directory** (`/app` or root of cloned repo):
+
+```bash
+# 1. Navigate to repository root directory
+cd /app
+
+# 2. Copy config.example.json to config.json
+cp config.example.json config.json
+
+# 3. Export environment variables
+export WISE_WORDS_CONFIG="$(pwd)/config.json"
+export GROQ_API_KEY="your-groq-key"
+export GOOGLE_AI_STUDIO_API_KEY="your-google-key"
+```
 
 ---
 
 ## Sequential Service Launch & Installation
 
-Install dependencies and launch the microservices **one by one** in the following order:
+Run these commands sequentially from the **Repository Root Directory** (`/app`):
 
 1. **Database Setup Tool (`tools/db-setup`)**:
    ```bash
