@@ -1,144 +1,157 @@
-# Comprehensive Deployment, Hosting & Testing Guide (Bun & Node.js)
+# Sequential Development Launch & Service Guide (Bun & Node.js)
 
-This guide provides detailed, step-by-step instructions for launching in development mode, running with Bun or Node.js, executing Docker setups, deploying to production (Azure & Docker Compose Prod), hosting the Angular frontend on GitHub Pages, and running the test suite.
-
----
-
-## Workspace Directory & File Structure Paths
-
-Below are the exact paths for all components, microservices, configuration files, and tools in the repository:
-
-- **Root Configuration**: `/app/config.json` (Template: `/app/config.example.json`)
-- **Root Package Configuration**: `/app/package.json`
-- **Database Schema & Migrations**: `/app/infra/db/migrations/001_init.sql`
-- **Database Setup Tool**: `/app/tools/db-setup/index.js` (`/app/tools/db-setup/package.json`)
-- **API Gateway Microservice**: `/app/backend/api/src/server.ts` (`/app/backend/api/package.json`)
-  - Adapters Path: `/app/backend/api/src/adapters/` (`stripe.ts`, `paypal.ts`, `razorpay.ts`, `binance.ts`, `coinbase.ts`, `moonpay.ts`)
-  - Routes Path: `/app/backend/api/src/routes/` (`auth.ts`, `payment.ts`, `billing.ts`, `docs.ts`)
-- **Webhook Microservice**: `/app/backend/webhook/src/server.ts` (`/app/backend/webhook/package.json`)
-- **Status & RAG Worker**: `/app/backend/worker/src/index.ts` (`/app/backend/worker/package.json`)
-- **MCP AI Tool Server**: `/app/backend/mcp/src/server.ts` (`/app/backend/mcp/package.json`)
-- **Angular Frontend Dashboard**: `/app/frontend/src/` (`/app/frontend/package.json`)
-- **Infrastructure Configurations**: `/app/infra/docker-compose.yml`, `/app/infra/docker-compose.prod.yml`, `/app/infra/azure/main.bicep`, `/app/infra/azure/deploy.sh`
-- **Test Suite**: `/app/tests/unit/core.test.ts`, `/app/tests/integration/services.test.ts`, `/app/tests/e2e/dashboard.spec.ts`
+This guide provides step-by-step instructions for starting the Payment Proxy Platform services **one by one** in local development mode.
 
 ---
 
-## 1. Launching in Local Development Mode
+## Workspace Directory & File Paths Summary
 
-### Using Bun ⚡
-
-Bun can be used as a ultra-fast package manager and runtime across all microservices and tools:
-
-1. **Install Dependencies**:
-   ```bash
-   bun install
-   ```
-
-2. **Initialize Database Schema**:
-   ```bash
-   bun run db:setup
-   # Or run directly with Bun runtime:
-   bun run tools/db-setup/index.js
-   ```
-
-3. **Start Microservices**:
-   - API Gateway: `bun run --cwd backend/api start` (Runs at `http://localhost:8080`, Swagger UI at `http://localhost:8080/docs`)
-   - Webhook Receiver: `bun run --cwd backend/webhook start` (Runs at `http://localhost:8081`)
-   - Status Worker: `bun run --cwd backend/worker start`
-   - MCP Server: `bun run --cwd backend/mcp start` (Runs at `http://localhost:8082`)
-   - Angular Dashboard: `bun run --cwd frontend start` (Runs at `http://localhost:4200`)
+- **Centralized Config File**: `/app/config.json` (Template: `/app/config.example.json`)
+- **Database Migrations Script**: `/app/infra/db/migrations/001_init.sql`
+- **Database Setup Tool**: `/app/tools/db-setup/index.js`
+- **API Gateway Service**: `/app/backend/api/src/server.ts` (Port `8080`)
+- **Webhook Receiver Service**: `/app/backend/webhook/src/server.ts` (Port `8081`)
+- **Status & RAG Worker Service**: `/app/backend/worker/src/index.ts`
+- **MCP AI Tool Server**: `/app/backend/mcp/src/server.ts` (Port `8082`)
+- **Angular Frontend Dashboard**: `/app/frontend/` (Port `4200`)
 
 ---
 
-### Using Node.js & npm
+## Step-by-Step Sequential Service Launch
 
-1. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
+Follow these steps in numerical order to bring up the platform service by service:
 
-2. **Initialize Database Schema**:
-   ```bash
-   npm run db:setup
-   ```
+### Step 1: Initialize Database & Run Setup Tool
 
-3. **Start Microservices**:
-   - API Gateway: `npm run start:api`
-   - Webhook Receiver: `npm run start:webhook`
-   - Status Worker: `npm run start:worker`
-   - MCP Server: `npm run start:mcp`
-   - Angular Dashboard: `npm run start:frontend`
+Before starting any microservice, ensure PostgreSQL (with `pgvector` extension) and Redis are running.
 
----
-
-## 2. Running with Docker & Docker Compose
-
-### Development Environment Stack
-To run PostgreSQL (with `pgvector`), Redis, all backend microservices, and the Angular dashboard:
-
+**Commands**:
 ```bash
-docker compose -f infra/docker-compose.yml up --build
+# Using Bun ⚡
+bun run tools/db-setup/index.js
+
+# Using Node.js & npm 💚
+npm run db:setup
 ```
 
-Endpoints:
-- **Angular Dashboard**: `http://localhost:4200`
-- **API Gateway & Swagger Docs**: `http://localhost:8080` / `http://localhost:8080/docs`
-- **Webhook Receiver**: `http://localhost:8081`
-- **MCP AI Server**: `http://localhost:8082`
-
-### Production Docker Compose Stack
+**Verification**:
 ```bash
-docker compose -f infra/docker-compose.prod.yml up -d --build
+psql "postgres://proxy:proxy@localhost:5432/proxy" -c "\dt"
+```
+Expect tables: `merchants`, `allowed_system_users`, `merchant_gateways`, `payment_requests`, `credit_ledger`, `webhook_events`, `routing_rules`, `doc_chunks`, `audit_log`.
+
+---
+
+### Step 2: Start API Gateway Microservice (`backend/api`)
+
+Open **Terminal 1** and start the core Fastify API Gateway.
+
+**Commands**:
+```bash
+# Using Bun ⚡
+bun run --cwd backend/api start
+
+# Using Node.js & npm 💚
+npm --prefix backend/api run build
+npm --prefix backend/api start
+```
+
+**Verification**:
+```bash
+curl http://localhost:8080/health
+# Response: {"ok":true,"version":"1.0.0","service":"api-gateway"}
+```
+Access interactive Fastify Swagger API documentation at: `http://localhost:8080/docs`.
+
+---
+
+### Step 3: Start Webhook Receiver Microservice (`backend/webhook`)
+
+Open **Terminal 2** and start the Webhook Receiver and HMAC forwarder service.
+
+**Commands**:
+```bash
+# Using Bun ⚡
+bun run --cwd backend/webhook start
+
+# Using Node.js & npm 💚
+npm --prefix backend/webhook run build
+npm --prefix backend/webhook start
+```
+
+**Verification**:
+```bash
+curl http://localhost:8081/health
+# Response: {"ok":true,"service":"webhook-rx"}
 ```
 
 ---
 
-## 3. Deploying to Production on Azure
+### Step 4: Start Status Polling & RAG Ingestion Worker (`backend/worker`)
 
-Execute the automated Azure Bicep IaC script:
+Open **Terminal 3** and start the background cron worker.
+
+**Commands**:
 ```bash
-bash infra/azure/deploy.sh rg-payment-proxy centralindia
+# Using Bun ⚡
+bun run --cwd backend/worker start
+
+# Using Node.js & npm 💚
+npm --prefix backend/worker run build
+npm --prefix backend/worker start
 ```
 
-Automates:
-- Azure Resource Group (`rg-payment-proxy`)
-- Azure Container Registry (ACR)
-- Azure Key Vault for secrets management
-- Azure PostgreSQL Flexible Server with `pgvector`
-- Azure Container Apps Environment
+**Verification Check**:
+Observe terminal logs confirming doc ingestion:
+```
+[worker] Payment Proxy Worker started.
+[worker] Starting RAG documentation ingestion...
+[worker] Ingested 7 documentation files into doc_chunks.
+```
 
 ---
 
-## 4. Hosting Angular Frontend on GitHub Pages
+### Step 5: Start Model Context Protocol (MCP) Server (`backend/mcp`)
 
-1. Build Angular dashboard with repository base href:
-   ```bash
-   bun run --cwd frontend build -- --base-href="https://<username>.github.io/<repo-name>/"
-   # or with npm:
-   npm --prefix frontend run build -- --base-href="https://<username>.github.io/<repo-name>/"
-   ```
+Open **Terminal 4** and start the MCP AI Server.
 
-2. Deploy using `angular-cli-ghpages`:
-   ```bash
-   npx angular-cli-ghpages --dir=frontend/dist/dashboard/browser
-   ```
+**Commands**:
+```bash
+# Using Bun ⚡
+bun run --cwd backend/mcp start
+
+# Using Node.js & npm 💚
+npm --prefix backend/mcp run build
+npm --prefix backend/mcp start
+```
 
 ---
 
-## 5. Running the Test Suite
+### Step 6: Start Angular Frontend Dashboard (`frontend`)
 
-### Unit & Integration Tests with Bun or Vitest
+Open **Terminal 5** and start the Angular UI application.
+
+**Commands**:
 ```bash
-# With Bun:
-bun test
+# Using Bun ⚡
+bun run --cwd frontend start
 
-# With npm / Vitest:
-npm run test:unit
-npm run test:integration
+# Using Angular CLI / npm 💚
+npm --prefix frontend start
 ```
 
-### End-to-End Tests with Playwright
-```bash
-npm run test:e2e
-```
+**Verification**:
+Open your browser and navigate to `http://localhost:4200`. Sign up a new merchant to test the end-to-end payment creation flow.
+
+---
+
+## Summary Table of Services
+
+| Step | Service Name | Directory Path | Port | Health / Verification Endpoint |
+| :--- | :--- | :--- | :--- | :--- |
+| **1** | Database Setup Tool | `tools/db-setup` | 5432 (Postgres) | `npm run db:setup` |
+| **2** | API Gateway | `backend/api` | 8080 | `GET http://localhost:8080/health` |
+| **3** | Webhook Receiver | `backend/webhook` | 8081 | `GET http://localhost:8081/health` |
+| **4** | Status & RAG Worker | `backend/worker` | N/A | Terminal Log Verification |
+| **5** | MCP AI Tool Server | `backend/mcp` | 8082 | Stdio / HTTP Connection |
+| **6** | Angular Dashboard | `frontend` | 4200 | `http://localhost:4200` |
