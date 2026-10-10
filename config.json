@@ -1,0 +1,38 @@
+{
+  "env": "development",
+  "masterKey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "jwtSecret": "dev_jwt_secret_change_me_please_32chars_long_minimum",
+  "internalSecret": "dev_internal_secret_key_32chars_long",
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "proxy",
+    "password": "proxy",
+    "database": "proxy",
+    "connectionString": "postgres://proxy:proxy@localhost:5432/proxy"
+  },
+  "redis": {
+    "url": "redis://localhost:6379"
+  },
+  "auth": {
+    "localSystemAuth": {
+      "enabled": true,
+      "allowedUsers": ["SYSTEM_LOCAL", "Administrator", "jules", "WIN_LOCAL_USER"]
+    },
+    "awsAuth": {
+      "enabled": true,
+      "region": "us-east-1",
+      "userPoolId": "us-east-1_MockUserPoolId",
+      "clientId": "mockAwsClientId12345"
+    },
+    "apiKeyAuth": {
+      "freeTierDailyLimit": 20
+    }
+  },
+  "services": {
+    "apiGateway": { "port": 8080, "host": "0.0.0.0" },
+    "webhookRx": { "port": 8081, "host": "0.0.0.0" },
+    "mcpServer": { "port": 8082, "host": "0.0.0.0" },
+    "frontend": { "port": 4200, "host": "0.0.0.0" }
+  }
+}

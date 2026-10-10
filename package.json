@@ -1,0 +1,32 @@
+{
+  "name": "payment-proxy-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Open-source, non-custodial payment orchestration proxy platform",
+  "workspaces": [
+    "backend/api",
+    "backend/webhook",
+    "backend/worker",
+    "backend/mcp",
+    "frontend",
+    "tools/db-setup"
+  ],
+  "scripts": {
+    "db:setup": "npm --prefix tools/db-setup start",
+    "start:api": "npm --prefix backend/api start",
+    "start:webhook": "npm --prefix backend/webhook start",
+    "start:worker": "npm --prefix backend/worker start",
+    "start:mcp": "npm --prefix backend/mcp start",
+    "start:frontend": "npm --prefix frontend start",
+    "build": "npm run build --workspaces --if-present",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "typescript": "^5.5.0",
+    "vitest": "^1.6.0"
+  }
+}
