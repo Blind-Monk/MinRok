@@ -4,7 +4,7 @@ An open-source, non-custodial payment orchestration proxy platform built with No
 
 ---
 
-## Architecture & Microservices Structure
+## Architecture & Microservices Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -38,45 +38,46 @@ An open-source, non-custodial payment orchestration proxy platform built with No
 
 ---
 
-## Directory & File Paths Guide
+## Service Documentation Links
 
-- **Centralized Configuration**: `/app/config.json` (Template at `/app/config.example.json`)
-- **Root Configuration**: `/app/package.json`
-- **Database Migrations & Setup Tool**:
-  - Migration Script: `/app/infra/db/migrations/001_init.sql`
-  - Setup Tool Script: `/app/tools/db-setup/index.js`
-- **API Gateway Microservice**: `/app/backend/api/`
-  - Entrypoint: `/app/backend/api/src/server.ts`
-  - Adapters: `/app/backend/api/src/adapters/` (`stripe.ts`, `paypal.ts`, `razorpay.ts`, `binance.ts`, `coinbase.ts`, `moonpay.ts`)
-  - Routes: `/app/backend/api/src/routes/` (`auth.ts`, `payment.ts`, `billing.ts`, `docs.ts`)
-- **Webhook Microservice**: `/app/backend/webhook/src/server.ts`
-- **Status & RAG Worker**: `/app/backend/worker/src/index.ts`
-- **MCP AI Server**: `/app/backend/mcp/src/server.ts`
-- **Angular Frontend Dashboard**: `/app/frontend/`
-- **Infrastructure & Deployment**:
-  - Docker Compose: `/app/infra/docker-compose.yml` & `/app/infra/docker-compose.prod.yml`
-  - Azure Bicep IaC: `/app/infra/azure/main.bicep` & `/app/infra/azure/deploy.sh`
-- **Tests**:
-  - Unit Tests: `/app/tests/unit/core.test.ts`
-  - Integration Tests: `/app/tests/integration/services.test.ts`
-  - Playwright E2E Tests: `/app/tests/e2e/dashboard.spec.ts`
+- 🚀 [API Gateway Microservice (`backend/api`)](docs/services/api-gateway.md)
+- 🔔 [Webhook Receiver & Forwarder (`backend/webhook`)](docs/services/webhook-receiver.md)
+- ⏱️ [Status Polling & RAG Ingestion Worker (`backend/worker`)](docs/services/status-rag-worker.md)
+- 🤖 [Model Context Protocol AI Server (`backend/mcp`)](docs/services/mcp-server.md)
+- 💻 [Angular Frontend Dashboard (`frontend`)](docs/services/angular-dashboard.md)
+- 🛠️ [Database Setup Tool (`tools/db-setup`)](docs/services/db-setup-tool.md)
 
 ---
 
-## Launching in Development (Bun & Node.js)
+## Directory & File Paths
+
+- **Centralized Configuration**: `/app/config.json` (Template: `/app/config.example.json`)
+- **Database Schema & Migrations**: `/app/infra/db/migrations/001_init.sql`
+- **Database Setup Tool**: `/app/tools/db-setup/index.js`
+- **API Gateway Microservice**: `/app/backend/api/src/server.ts`
+- **Webhook Microservice**: `/app/backend/webhook/src/server.ts`
+- **Status & RAG Worker**: `/app/backend/worker/src/index.ts`
+- **MCP AI Server**: `/app/backend/mcp/src/server.ts`
+- **Angular Dashboard UI**: `/app/frontend/`
+- **Infrastructure Configurations**: `/app/infra/docker-compose.yml`, `/app/infra/docker-compose.prod.yml`, `/app/infra/azure/deploy.sh`
+- **Test Suite**: `/app/tests/unit/core.test.ts`, `/app/tests/integration/services.test.ts`, `/app/tests/e2e/dashboard.spec.ts`
+
+---
+
+## Quickstart & Launch in Development
 
 ### Using Bun ⚡
 ```bash
-# 1. Install workspace dependencies
+# Install dependencies
 bun install
 
-# 2. Run Database Setup Tool
+# Run Database Setup Tool
 bun run tools/db-setup/index.js
 
-# 3. Launch Services
+# Start Microservices
 bun run --cwd backend/api start       # API Gateway (http://localhost:8080)
 bun run --cwd backend/webhook start   # Webhook Rx (http://localhost:8081)
-bun run --cwd backend/worker start    # Status/RAG Worker
+bun run --cwd backend/worker start    # Status & RAG Worker
 bun run --cwd backend/mcp start       # MCP Server (http://localhost:8082)
 bun run --cwd frontend start          # Angular Dashboard (http://localhost:4200)
 ```
@@ -94,63 +95,24 @@ npm run start:frontend
 
 ---
 
-## Docker Deployment
+## Docker & Production Azure Deployment
 
-### Development Environment
-```bash
-docker compose -f infra/docker-compose.yml up --build
-```
-
-### Production Stack
-```bash
-docker compose -f infra/docker-compose.prod.yml up -d --build
-```
+- **Development Docker Compose**: `docker compose -f infra/docker-compose.yml up --build`
+- **Production Docker Compose**: `docker compose -f infra/docker-compose.prod.yml up -d --build`
+- **Azure Production IaC Script**: `bash infra/azure/deploy.sh rg-payment-proxy centralindia`
+- **GitHub Pages Hosting**: `bun run --cwd frontend build -- --base-href="https://<username>.github.io/<repo-name>/" && npx angular-cli-ghpages --dir=frontend/dist/dashboard/browser`
 
 ---
 
-## Production Deployment on Azure
-
-Deploy with Azure Bicep and Azure CLI:
-```bash
-bash infra/azure/deploy.sh rg-payment-proxy centralindia
-```
-
----
-
-## Hosting Angular Dashboard on GitHub Pages
-
-```bash
-# Build with GitHub Pages base href
-bun run --cwd frontend build -- --base-href="https://<username>.github.io/<repo-name>/"
-
-# Deploy
-npx angular-cli-ghpages --dir=frontend/dist/dashboard/browser
-```
-
----
-
-## Running Test Suite
+## Testing
 
 ```bash
 # Unit & Integration Tests
 bun test
-# or with npm:
+# or:
 npm run test:unit
 npm run test:integration
 
-# E2E Playwright Tests
+# Playwright E2E Tests
 npm run test:e2e
 ```
-
----
-
-## Documentation Links
-
-- [`docs/deployment-and-testing.md`](docs/deployment-and-testing.md) - Detailed Bun, Node, Azure, Docker, GitHub Pages & Testing Guide
-- [`docs/architecture.md`](docs/architecture.md) - Architecture & Design Invariants
-- [`docs/getting-started.md`](docs/getting-started.md) - Quickstart Guide
-- [`docs/api-reference.md`](docs/api-reference.md) - API Endpoints Reference
-- [`docs/mcp-integration.md`](docs/mcp-integration.md) - MCP AI Tools Integration
-- [`docs/tools.md`](docs/tools.md) - Database Setup Tool & Centralized Config
-- [`docs/billing.md`](docs/billing.md) - Microcent Metering & 20 Req/Day Free Quota
-- [`docs/self-hosting.md`](docs/self-hosting.md) - Docker Compose Self-Hosting
