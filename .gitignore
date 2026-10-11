@@ -7,3 +7,4 @@ node_modules
 coverage
 .playwright-tests
 .vite
+bun.lock
