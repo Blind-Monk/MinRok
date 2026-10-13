@@ -4,6 +4,36 @@ An open-source, non-custodial payment orchestration proxy platform built with No
 
 ---
 
+## SaaS Authentication Modes & Configuration
+
+MinRok supports a flexible SaaS authentication layer configurable entirely in `config.json`. When deployed, a single active authentication provider is active, specified by `"auth.activeProvider"`.
+
+### Supported Providers:
+- `form` (Default): Custom sign-up form and login with email/password.
+- `windows`: Windows Local System auth with allowed user restrictions.
+- `azure`: Azure AD B2C / Entra ID OAuth SSO.
+- `amazon`: Login with Amazon OAuth.
+- `auth0`: Auth0 Enterprise/Social SSO.
+- `google`: Google OAuth 2.0.
+- `microsoft`: Microsoft Account SSO.
+- `github`: GitHub OAuth SSO.
+- `apple`: Sign in with Apple SSO.
+
+To set the active provider, edit `config.json`:
+```json
+{
+  "auth": {
+    "activeProvider": "form",
+    "form": { "enabled": true, "allowSignup": true },
+    "windows": { "enabled": true, "allowedUsers": ["SYSTEM_LOCAL", "Administrator", "WIN_LOCAL_USER"] },
+    "azure": { "enabled": true, "tenantId": "your-tenant-id", "clientId": "your-client-id" },
+    "google": { "enabled": true, "clientId": "your-google-client-id" }
+  }
+}
+```
+
+---
+
 ## Architecture & Microservices Overview
 
 ```
@@ -141,7 +171,7 @@ Run commands from repository root (`/app`):
 Run commands from repository root (`/app`):
 ```bash
 # Unit & Integration Tests
-bun test
+bun test tests/unit/auth.test.ts
 # or:
 npm run test:unit
 npm run test:integration
