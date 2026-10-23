@@ -29,6 +29,10 @@ export class ApiService {
     return headers;
   }
 
+  getAuthConfig(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/v1/auth/config`);
+  }
+
   signup(email: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/v1/auth/signup`, { email, password }).pipe(
       tap((res: any) => {
@@ -46,6 +50,28 @@ export class ApiService {
 
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/v1/auth/login`, { email, password }).pipe(
+      tap((res: any) => {
+        if (res.token) {
+          localStorage.setItem(this.tokenKey, res.token);
+          this.token$.next(res.token);
+        }
+      })
+    );
+  }
+
+  windowsAuth(username?: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/v1/auth/windows`, { username }).pipe(
+      tap((res: any) => {
+        if (res.token) {
+          localStorage.setItem(this.tokenKey, res.token);
+          this.token$.next(res.token);
+        }
+      })
+    );
+  }
+
+  ssoAuth(provider: string, email: string, ssoToken?: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/v1/auth/sso`, { provider, email, ssoToken }).pipe(
       tap((res: any) => {
         if (res.token) {
           localStorage.setItem(this.tokenKey, res.token);
