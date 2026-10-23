@@ -1,0 +1,67 @@
+{
+  "env": "development",
+  "masterKey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "jwtSecret": "dev_jwt_secret_change_me_please_32chars_long_minimum",
+  "internalSecret": "dev_internal_secret_key_32chars_long",
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "proxy",
+    "password": "proxy",
+    "database": "proxy",
+    "connectionString": "postgres://proxy:proxy@localhost:5432/proxy"
+  },
+  "redis": {
+    "url": "redis://localhost:6379"
+  },
+  "auth": {
+    "activeProvider": "form",
+    "form": {
+      "enabled": true,
+      "allowSignup": true
+    },
+    "windows": {
+      "enabled": true,
+      "allowedUsers": ["SYSTEM_LOCAL", "Administrator", "jules", "WIN_LOCAL_USER"]
+    },
+    "azure": {
+      "enabled": true,
+      "tenantId": "your-azure-tenant-id",
+      "clientId": "your-azure-client-id"
+    },
+    "amazon": {
+      "enabled": true,
+      "clientId": "your-amazon-client-id"
+    },
+    "auth0": {
+      "enabled": true,
+      "domain": "your-auth0-domain.auth0.com",
+      "clientId": "your-auth0-client-id"
+    },
+    "google": {
+      "enabled": true,
+      "clientId": "your-google-client-id"
+    },
+    "microsoft": {
+      "enabled": true,
+      "clientId": "your-microsoft-client-id"
+    },
+    "github": {
+      "enabled": true,
+      "clientId": "your-github-client-id"
+    },
+    "apple": {
+      "enabled": true,
+      "clientId": "your-apple-client-id"
+    },
+    "apiKeyAuth": {
+      "freeTierDailyLimit": 20
+    }
+  },
+  "services": {
+    "apiGateway": { "port": 8080, "host": "0.0.0.0" },
+    "webhookRx": { "port": 8081, "host": "0.0.0.0" },
+    "mcpServer": { "port": 8082, "host": "0.0.0.0" },
+    "frontend": { "port": 4200, "host": "0.0.0.0" }
+  }
+}
